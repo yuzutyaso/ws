@@ -1,7 +1,7 @@
 {
   "name": "youtube-downloader",
   "version": "1.0.0",
-  "description": "A web application to search and download YouTube videos.",
+  "description": "A web application to download YouTube videos.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "ytsr": "^3.8.3",
     "ejs": "^3.1.9"
   }
 }
