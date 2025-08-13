@@ -15,7 +15,8 @@ app.use(express.static('public'));
 
 // トップページ（検索フォーム）
 app.get('/', (req, res) => {
-    res.render('index', { results: null });
+    // reqオブジェクトをテンプレートに渡す
+    res.render('index', { results: null, req: req });
 });
 
 // 検索処理
@@ -28,10 +29,10 @@ app.get('/search', async (req, res) => {
 
     try {
         const searchResults = await ytsr(q, { limit: 10 });
-
         const videos = searchResults.items.filter(item => item.type === 'video');
 
-        res.render('index', { results: videos });
+        // reqオブジェクトをテンプレートに渡す
+        res.render('index', { results: videos, req: req });
     } catch (error) {
         console.error(error);
         res.status(500).send('検索中にエラーが発生しました。');
