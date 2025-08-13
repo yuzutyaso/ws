@@ -1,0 +1,17 @@
+{
+  "name": "youtube-downloader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "postinstall": "yt-dlp --update-to stable && yt-dlp --version"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ytsr": "^3.8.3"
+  },
+  "devDependencies": {
+    "yt-dlp": "^1.1.1"
+  }
+}
