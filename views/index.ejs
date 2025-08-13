@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Downloader</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        form { margin-bottom: 20px; }
+        .result-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>YouTube Downloader</h1>
+    
+    <form action="/search" method="GET">
+        <input type="text" name="q" placeholder="検索キーワードを入力" value="<%= req.query.q || '' %>">
+        <button type="submit">検索</button>
+    </form>
+    
+    <% if (results) { %>
+        <h2>検索結果</h2>
+        <% if (results.length > 0) { %>
+            <% results.forEach(video => { %>
+                <div class="result-item">
+                    <h3><%= video.title %></h3>
+                    <img src="<%= video.thumbnail.url %>" alt="<%= video.title %>" width="160">
+                    <p>再生時間: <%= video.duration %></p>
+                    <p><a href="<%= video.url %>" target="_blank">YouTubeで見る</a></p>
+                    <a href="/download?url=<%= video.url %>&format=mp4">動画 (MP4) ダウンロード</a>
+                    <a href="/download?url=<%= video.url %>&format=mp3">音声 (MP3) ダウンロード</a>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>検索結果が見つかりませんでした。</p>
+        <% } %>
+    <% } %>
+</body>
+</html>
