@@ -27,9 +27,8 @@ app.get('/search', async (req, res) => {
     }
 
     try {
-        const searchResults = await ytsr(q, { limit: 10 }); // 10件の検索結果を取得
+        const searchResults = await ytsr(q, { limit: 10 });
 
-        // ダウンロード可能な動画のみにフィルタリング
         const videos = searchResults.items.filter(item => item.type === 'video');
 
         res.render('index', { results: videos });
@@ -47,20 +46,16 @@ app.get('/download', (req, res) => {
         return res.status(400).send('動画のURLとフォーマットを指定してください。');
     }
 
-    // yt-dlpのオプションを設定
     const options = [url, '-o', '-'];
     
     if (format === 'mp4') {
-        // mp4動画としてダウンロード
         options.push('-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]');
     } else if (format === 'mp3') {
-        // mp3音声としてダウンロード
         options.push('-f', 'bestaudio', '-x', '--audio-format', 'mp3');
     }
 
     const ytdlp = spawn('yt-dlp', options, { stdio: ['ignore', 'pipe', 'inherit'] });
 
-    // ダウンロードしたデータをストリーミング
     res.setHeader('Content-Type', format === 'mp3' ? 'audio/mpeg' : 'video/mp4');
     res.setHeader('Content-Disposition', `attachment; filename="youtube.${format}"`);
 
