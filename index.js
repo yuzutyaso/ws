@@ -6,43 +6,63 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// EJSをテンプレートエンジンとして設定
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// 静的ファイルを配信する設定（CSSなど）
+app.use(express.static('public'));
+
+// トップページ（検索フォーム）
+app.get('/', (req, res) => {
+    res.render('index', { results: null });
+});
+
+// 検索処理
 app.get('/search', async (req, res) => {
     const { q } = req.query;
 
     if (!q) {
-        return res.status(400).send('検索キーワード (q) をURLパラメーターで指定してください。例: /search?q=gohan');
+        return res.redirect('/');
     }
 
     try {
-        const searchResults = await ytsr(q, { limit: 1 }); // 最初の1件だけを取得
-        const firstResult = searchResults.items.find(item => item.type === 'video');
+        const searchResults = await ytsr(q, { limit: 10 }); // 10件の検索結果を取得
 
-        if (!firstResult) {
-            return res.status(404).send('検索結果が見つかりませんでした。');
-        }
+        // ダウンロード可能な動画のみにフィルタリング
+        const videos = searchResults.items.filter(item => item.type === 'video');
 
-        const videoUrl = firstResult.url;
-        res.send(`見つかった動画のURL: ${videoUrl}`);
-
+        res.render('index', { results: videos });
     } catch (error) {
         console.error(error);
         res.status(500).send('検索中にエラーが発生しました。');
     }
 });
 
+// ダウンロード処理
 app.get('/download', (req, res) => {
-    const { url } = req.query;
+    const { url, format } = req.query;
 
-    if (!url) {
-        return res.status(400).send('動画のURL (url) をURLパラメーターで指定してください。例: /download?url=https://www.youtube.com/watch?v=xxxxxxxxxxx');
+    if (!url || !format) {
+        return res.status(400).send('動画のURLとフォーマットを指定してください。');
     }
 
-    // yt-dlpを実行
-    const ytdlp = spawn('yt-dlp', [url, '-o', '-'], { stdio: ['ignore', 'pipe', 'inherit'] });
+    // yt-dlpのオプションを設定
+    const options = [url, '-o', '-'];
+    
+    if (format === 'mp4') {
+        // mp4動画としてダウンロード
+        options.push('-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]');
+    } else if (format === 'mp3') {
+        // mp3音声としてダウンロード
+        options.push('-f', 'bestaudio', '-x', '--audio-format', 'mp3');
+    }
+
+    const ytdlp = spawn('yt-dlp', options, { stdio: ['ignore', 'pipe', 'inherit'] });
 
     // ダウンロードしたデータをストリーミング
-    res.setHeader('Content-Type', 'video/mp4');
-    res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
+    res.setHeader('Content-Type', format === 'mp3' ? 'audio/mpeg' : 'video/mp4');
+    res.setHeader('Content-Disposition', `attachment; filename="youtube.${format}"`);
 
     ytdlp.stdout.pipe(res);
 
