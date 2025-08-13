@@ -1,9 +1,0 @@
-// vercel.json
-{
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.js"
-    }
-  ]
-}
