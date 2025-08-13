@@ -6,33 +6,22 @@
     <style>
         body { font-family: sans-serif; margin: 20px; }
         form { margin-bottom: 20px; }
-        .result-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .download-options { margin-top: 10px; }
+        .download-button { margin-right: 10px; }
     </style>
 </head>
 <body>
-    <h1>YouTube Downloader</h1>
+    <h1>YouTube ダウンローダー</h1>
     
-    <form action="/search" method="GET">
-        <input type="text" name="q" placeholder="検索キーワードを入力" value="<%= req.query.q || '' %>">
-        <button type="submit">検索</button>
+    <p>ダウンロードしたいYouTube動画のURLを入力してください。</p>
+    
+    <form action="/download" method="GET">
+        <input type="text" name="url" placeholder="YouTube動画のURL" size="50" value="<%= url %>">
+        <div class="download-options">
+            <button type="submit" name="format" value="mp4" class="download-button">動画 (MP4) ダウンロード</button>
+            <button type="submit" name="format" value="mp3" class="download-button">音声 (MP3) ダウンロード</button>
+        </div>
     </form>
-    
-    <% if (results) { %>
-        <h2>検索結果</h2>
-        <% if (results.length > 0) { %>
-            <% results.forEach(video => { %>
-                <div class="result-item">
-                    <h3><%= video.title %></h3>
-                    <img src="<%= video.thumbnail.url %>" alt="<%= video.title %>" width="160">
-                    <p>再生時間: <%= video.duration %></p>
-                    <p><a href="<%= video.url %>" target="_blank">YouTubeで見る</a></p>
-                    <a href="/download?url=<%= video.url %>&format=mp4">動画 (MP4) ダウンロード</a>
-                    <a href="/download?url=<%= video.url %>&format=mp3">音声 (MP3) ダウンロード</a>
-                </div>
-            <% }); %>
-        <% } else { %>
-            <p>検索結果が見つかりませんでした。</p>
-        <% } %>
-    <% } %>
+
 </body>
 </html>
