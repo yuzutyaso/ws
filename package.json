@@ -1,17 +1,15 @@
 {
   "name": "youtube-downloader",
   "version": "1.0.0",
-  "description": "",
+  "description": "A web application to search and download YouTube videos.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "postinstall": "yt-dlp --update-to stable && yt-dlp --version"
+    "postinstall": "curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && chmod a+x /usr/local/bin/yt-dlp"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "ytsr": "^3.8.3"
-  },
-  "devDependencies": {
-    "yt-dlp": "^1.1.1"
+    "ytsr": "^3.8.3",
+    "ejs": "^3.1.9"
   }
 }
