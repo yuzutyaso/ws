@@ -31,9 +31,9 @@ app.get('/download', (req, res) => {
         return res.status(400).send('無効なフォーマットです。mp4またはmp3を指定してください。');
     }
 
-    const ytdlp = spawn('yt-dlp', options);
+    // ここでyt-dlpのパスを明示的に指定
+    const ytdlp = spawn('/tmp/yt-dlp', options);
 
-    // yt-dlpプロセスのエラーをキャッチ
     ytdlp.on('error', (err) => {
         console.error('yt-dlp failed to start:', err);
         if (!res.headersSent) {
@@ -41,21 +41,17 @@ app.get('/download', (req, res) => {
         }
     });
 
-    // 標準出力ストリームでデータをパイプ
     ytdlp.stdout.pipe(res);
 
-    // 標準エラー出力ストリームでエラーをキャッチ
     ytdlp.stderr.on('data', (data) => {
         console.error(`yt-dlp stderr: ${data}`);
     });
     
-    // プロセス終了時の処理
     ytdlp.on('close', (code) => {
         if (code !== 0 && !res.headersSent) {
             console.error(`yt-dlp exited with code ${code}`);
             res.status(500).send(`ダウンロード中にエラーが発生しました。終了コード: ${code}`);
         } else if (!res.headersSent) {
-            // ヘッダーを送信
             res.setHeader('Content-Type', format === 'mp3' ? 'audio/mpeg' : 'video/mp4');
             res.setHeader('Content-Disposition', `attachment; filename="youtube.${format}"`);
         }
