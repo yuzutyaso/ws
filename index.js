@@ -1,42 +1,17 @@
 const express = require('express');
-const ytsr = require('ytsr');
 const { spawn } = require('child_process');
 const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// EJSをテンプレートエンジンとして設定
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// 静的ファイルを配信する設定（CSSなど）
 app.use(express.static('public'));
 
-// トップページ（検索フォーム）
+// トップページ（URL入力フォームとダウンロードオプション）
 app.get('/', (req, res) => {
-    // reqオブジェクトをテンプレートに渡す
-    res.render('index', { results: null, req: req });
-});
-
-// 検索処理
-app.get('/search', async (req, res) => {
-    const { q } = req.query;
-
-    if (!q) {
-        return res.redirect('/');
-    }
-
-    try {
-        const searchResults = await ytsr(q, { limit: 10 });
-        const videos = searchResults.items.filter(item => item.type === 'video');
-
-        // reqオブジェクトをテンプレートに渡す
-        res.render('index', { results: videos, req: req });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('検索中にエラーが発生しました。');
-    }
+    res.render('index', { url: req.query.url || '' });
 });
 
 // ダウンロード処理
@@ -53,6 +28,8 @@ app.get('/download', (req, res) => {
         options.push('-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]');
     } else if (format === 'mp3') {
         options.push('-f', 'bestaudio', '-x', '--audio-format', 'mp3');
+    } else {
+        return res.status(400).send('無効なフォーマットです。mp4またはmp3を指定してください。');
     }
 
     const ytdlp = spawn('yt-dlp', options, { stdio: ['ignore', 'pipe', 'inherit'] });
