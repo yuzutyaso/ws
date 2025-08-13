@@ -2,26 +2,35 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>YouTube Downloader</title>
+    <title>YouTube Video Info</title>
     <style>
         body { font-family: sans-serif; margin: 20px; }
         form { margin-bottom: 20px; }
-        .download-options { margin-top: 10px; }
-        .download-button { margin-right: 10px; }
+        .error { color: red; font-weight: bold; }
+        .info-box { border: 1px solid #ccc; padding: 15px; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>YouTube ダウンローダー</h1>
+    <h1>YouTube 動画情報</h1>
     
-    <p>ダウンロードしたいYouTube動画のURLを入力してください。</p>
-    
-    <form action="/download" method="GET">
+    <form action="/info" method="GET">
         <input type="text" name="url" placeholder="YouTube動画のURL" size="50" value="<%= url %>">
-        <div class="download-options">
-            <button type="submit" name="format" value="mp4" class="download-button">動画 (MP4) ダウンロード</button>
-            <button type="submit" name="format" value="mp3" class="download-button">音声 (MP3) ダウンロード</button>
-        </div>
+        <button type="submit">情報を取得</button>
     </form>
+    
+    <% if (error) { %>
+        <p class="error"><%= error %></p>
+    <% } %>
 
+    <% if (videoInfo) { %>
+        <div class="info-box">
+            <h2><%= videoInfo.title %></h2>
+            <img src="<%= videoInfo.thumbnail %>" alt="Thumbnail" width="320">
+            <p><strong>動画ID:</strong> <%= videoInfo.id %></p>
+            <p><strong>投稿者:</strong> <%= videoInfo.uploader %></p>
+            <p><strong>再生時間:</strong> <%= videoInfo.duration_string %></p>
+            <p><strong>ビュー数:</strong> <%= videoInfo.view_count.toLocaleString() %></p>
+        </div>
+    <% } %>
 </body>
 </html>
